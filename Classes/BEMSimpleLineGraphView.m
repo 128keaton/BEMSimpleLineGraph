@@ -151,7 +151,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     _colorTop = [UIColor colorWithRed:0 green:122.0/255.0 blue:255/255 alpha:1];
     _colorLine = [UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1];
     _colorBottom = [UIColor colorWithRed:0 green:122.0/255.0 blue:255/255 alpha:1];
-    _colorPoint = [UIColor whiteColor];
+    _colorPoint = [UIColor colorWithWhite:1.0 alpha:0.7];
     _colorTouchInputLine = [UIColor grayColor];
     _colorBackgroundPopUplabel = [UIColor whiteColor];
     _alphaTouchInputLine = 0.2;
@@ -169,10 +169,12 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     
     // Set Size Values
     _widthLine = 1.0;
+    _widthReferenceLines = 1.0;
     _sizePoint = 10.0;
     
     // Set Default Feature Values
     _enableTouchReport = NO;
+    _touchReportFingersRequired = 1;
     _enablePopUpReport = NO;
     _enableBezierCurve = NO;
     _enableXAxisLabel = YES;
@@ -464,7 +466,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     
     // Remove all dots that were previously on the graph
     for (UIView *subview in [self subviews]) {
-        if ([subview isKindOfClass:[BEMCircle class]] || [subview isKindOfClass:[BEMPermanentPopupView class]])
+        if ([subview isKindOfClass:[BEMCircle class]] || [subview isKindOfClass:[BEMPermanentPopupView class]] || [subview isKindOfClass:[BEMPermanentPopupLabel class]])
             [subview removeFromSuperview];
     }
     
@@ -538,13 +540,12 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
                     if (self.displayDotsOnly == YES) circleDot.alpha = 1.0;
                     else {
                         if (self.alwaysDisplayDots == NO) circleDot.alpha = 0;
-                        else circleDot.alpha = 0.7;
+                        else circleDot.alpha = 1.0;
                     }
                 } else {
                     if (self.displayDotsWhileAnimating) {
                         [UIView animateWithDuration:(float)self.animationGraphEntranceTime/numberOfPoints delay:(float)i*((float)self.animationGraphEntranceTime/numberOfPoints) options:UIViewAnimationOptionCurveLinear animations:^{
-                            if (self.displayDotsOnly == YES) circleDot.alpha = 1.0;
-                            else circleDot.alpha = 0.7;
+                            circleDot.alpha = 1.0;
                         } completion:^(BOOL finished) {
                             if (self.alwaysDisplayDots == NO && self.displayDotsOnly == NO) {
                                 [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
@@ -580,6 +581,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     line.topGradient = self.gradientTop;
     line.bottomGradient = self.gradientBottom;
     line.lineWidth = self.widthLine;
+    line.referenceLineWidth = self.widthReferenceLines?self.widthReferenceLines:(self.widthLine/2);
     line.lineAlpha = self.alphaLine;
     line.bezierCurveIsEnabled = self.enableBezierCurve;
     line.arrayOfPoints = yAxisValues;
@@ -1080,12 +1082,13 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     self.enablePopUpReport = NO;
     self.xCenterLabel = circleDot.center.x;
     
-    UILabel *permanentPopUpLabel = [[UILabel alloc] init];
+    BEMPermanentPopupLabel *permanentPopUpLabel = [[BEMPermanentPopupLabel alloc] init];
     permanentPopUpLabel.textAlignment = NSTextAlignmentCenter;
     permanentPopUpLabel.numberOfLines = 0;
     
     NSString *prefix = @"";
     NSString *suffix = @"";
+    
     if ([self.delegate respondsToSelector:@selector(popUpSuffixForlineGraph:)])
         suffix = [self.delegate popUpSuffixForlineGraph:self];
 
@@ -1290,12 +1293,20 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if ([gestureRecognizer isEqual:self.panGesture]) {
-        if (gestureRecognizer.numberOfTouches > 0) {
+        if (gestureRecognizer.numberOfTouches >= self.touchReportFingersRequired) {
             CGPoint translation = [self.panGesture velocityInView:self.panView];
             return fabs(translation.y) < fabs(translation.x);
         } else return NO;
         return YES;
     } else return NO;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+	    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+	    return YES;
 }
 
 - (void)handleGestureAction:(UIGestureRecognizer *)recognizer {

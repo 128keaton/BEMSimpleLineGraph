@@ -78,7 +78,7 @@ Add your **BEMSimpleLineGraph** app to the wiki page for a chance to get showcas
 ## Getting Started
 *See the full article on the wiki [here](https://github.com/Boris-Em/BEMSimpleLineGraph/wiki/Getting-Started).*
 
-**BEMSimpleLineGraph** can be added to any project (big or small) in a matter of minutes (maybe even seconds if you're super speedy). Cocoapods is fully supported, and so are all the latest technologies (eg. ARC, Storyboards, Interface Builder Attributes, Modules, and more).
+**BEMSimpleLineGraph** can be added to any project (big or small) in a matter of minutes (maybe even seconds if you're super speedy). CocoaPods is fully supported, and so are all the latest technologies (eg. ARC, Storyboards, Interface Builder Attributes, Modules, and more).
 
 ### Installation
 The easiest way to install BEMSimpleLineGraph is to use <a href="http://cocoapods.org/" target="_blank">CocoaPods</a>. To do so, simply add the following line to your `Podfile`:
@@ -89,7 +89,7 @@ The other way to install **BEMSimpleLineGraph**, is to drag and drop the *Classe
 ####Swift Projects
 To use **BEMSimpleLineGraph** in a Swift project add the following to your bridging header:
 
-    #import "BEMSimpleLineGraphView.h”
+    #import "BEMSimpleLineGraphView.h"
 
 ### Setup
 Setting up **BEMSimpleLineGraph** in your project is simple. If you're familiar with UITableView, then **BEMSimpleLineGraph **should be a breeze. Follow the steps below to get everything up and running.
