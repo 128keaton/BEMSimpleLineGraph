@@ -753,9 +753,15 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
                 xAxisXPositionLastOffset = viewWidth/2 + xAxisXPositionFirstOffset + 1;
             }
             UILabel *firstLabel = [self xAxisLabelWithText:firstXLabel atIndex:0];
-            firstLabel.frame = CGRectMake(xAxisXPositionFirstOffset, self.frame.size.height-20, viewWidth/2, 20);
+            if(!_singleDataPointInteractionMode){
+        					 firstLabel.frame = CGRectMake(xAxisXPositionFirstOffset, self.frame.size.height-20, viewWidth/2, 20);
+        					 firstLabel.textAlignment = NSTextAlignmentLeft;
+        				}else{
+        					 firstLabel.textAlignment = NSTextAlignmentCenter;
+        					 firstLabel.frame = CGRectMake(0, self.frame.size.height-20, self.frame.size.width, 20);
+        				}
 
-            firstLabel.textAlignment = NSTextAlignmentLeft;
+        				
             [self addSubview:firstLabel];
             [xAxisValues addObject:firstXLabel];
             [xAxisLabels addObject:firstLabel];

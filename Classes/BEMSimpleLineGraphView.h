@@ -406,7 +406,7 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
  @discussion The number of strings to be returned should be equal to the number of points in the graph (returned in \p numberOfPointsInLineGraph). Otherwise, an exception may be thrown.
  @param graph The graph object which is requesting the label on the specified X-Axis position.
  @param index The index from left to right of a given label on the X-axis. Is the same index as the one for the points. The first value for the index is 0. */
-- (nullable NSString *)lineGraph:(nonnull BEMSimpleLineGraphView *)graph labelOnXAxisForIndex:(NSInteger)index;
+- (nonnull NSString *)lineGraph:(nonnull BEMSimpleLineGraphView *)graph labelOnXAxisForIndex:(NSInteger)index;
 
 
 @end
