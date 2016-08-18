@@ -234,6 +234,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     [self layoutNumberOfPoints];
 
     if (numberOfPoints <= 1) {
+		  [self layoutTouchReport];
         return;
     } else {
         // Draw the graph
@@ -313,14 +314,20 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             [self.delegate lineGraphDidFinishLoading:self];
         return;
 
-    } else if (numberOfPoints == 1 && _singleDataPointInteractionMode == NO) {
-        NSLog(@"[BEMSimpleLineGraph] Data source contains only one data point. Add more data to the data source and then reload the graph.");
-        BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
-        circleDot.center = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
-        circleDot.Pointcolor = self.colorPoint;
-        circleDot.alpha = 1;
-        [self addSubview:circleDot];
-        return;
+    } else if (numberOfPoints == 1) {
+		  if (_singleDataPointInteractionMode == NO){
+					 NSLog(@"[BEMSimpleLineGraph] Data source contains only one data point. Add more data to the data source and then reload the graph.");
+					 BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
+					 circleDot.center = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
+					 circleDot.Pointcolor = self.colorPoint;
+					 circleDot.alpha = 1;
+					 [self addSubview:circleDot];
+					 return;
+				}else{
+					 [self drawDots];
+					 return;
+
+				}
 
     } else {
         // Remove all dots that were previously on the graph
@@ -333,6 +340,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 
 - (void)layoutTouchReport {
     // If the touch report is enabled, set it up
+
     if (self.enableTouchReport == YES || self.enablePopUpReport == YES) {
         // Initialize the vertical gray line that appears where the user touches the graph.
         self.touchInputLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.widthTouchInputLine, self.frame.size.height)];
@@ -516,12 +524,15 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             dotValue = (int)(arc4random() % 10000);
 #endif
             [dataPoints addObject:@(dotValue)];
-
+				if (!_singleDataPointInteractionMode){
             if (self.positionYAxisRight) {
                 positionOnXAxis = (((self.frame.size.width - self.YAxisLabelXOffset) / (numberOfPoints - 1)) * i);
             } else {
                 positionOnXAxis = (((self.frame.size.width - self.YAxisLabelXOffset) / (numberOfPoints - 1)) * i) + self.YAxisLabelXOffset;
             }
+				}else{
+					 positionOnXAxis = self.frame.size.width/2;
+				}
 
             positionOnYAxis = [self yPositionForDotValue:dotValue];
 
@@ -532,8 +543,11 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 
             if (dotValue != BEMNullGraphValue) {
                 BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
-                circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
+
+					 circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
+
                 circleDot.tag = i+ DotFirstTag100;
+
                 circleDot.alpha = 0;
                 circleDot.absoluteValue = dotValue;
                 circleDot.Pointcolor = self.colorPoint;
@@ -1337,6 +1351,16 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     if (self.enablePopUpReport == YES && closestDot.tag >= DotFirstTag100 && closestDot.tag < DotLastTag1000 && [closestDot isKindOfClass:[BEMCircle class]] && self.alwaysDisplayPopUpLabels == NO) {
         [self setUpPopUpLabelAbovePoint:closestDot];
     }
+	 if(_singleDataPointInteractionMode){
+
+		  if ([self.delegate respondsToSelector:@selector(lineGraph:didTouchGraphWithClosestIndex:)] && self.enableTouchReport == YES) {
+				[self.delegate lineGraph:self didTouchGraphWithClosestIndex:(0)];
+
+		  } else if ([self.delegate respondsToSelector:@selector(didTouchGraphWithClosestIndex:)] && self.enableTouchReport == YES) {
+				[self printDeprecationWarningForOldMethod:@"didTouchGraphWithClosestIndex:" andReplacementMethod:@"lineGraph:didTouchGraphWithClosestIndex:"];
+				}
+
+	 }
 
     if (closestDot.tag >= DotFirstTag100 && closestDot.tag < DotLastTag1000 && [closestDot isMemberOfClass:[BEMCircle class]]) {
         if ([self.delegate respondsToSelector:@selector(lineGraph:didTouchGraphWithClosestIndex:)] && self.enableTouchReport == YES) {
@@ -1577,7 +1601,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     else positionOnYAxis = ((self.frame.size.height) - dotValue);
 
     positionOnYAxis -= self.XAxisLabelYOffset;
-
+	 if (_singleDataPointInteractionMode == YES){
+		  return self.frame.size.width/2;
+	 }
     return positionOnYAxis;
 }
 
