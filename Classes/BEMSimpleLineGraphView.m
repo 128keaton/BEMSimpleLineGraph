@@ -193,7 +193,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     _YAxisLabelXOffset = 0;
     _autoScaleYAxis = YES;
     _alwaysDisplayDots = NO;
-    _shouldDisplayRightSide = NO;
     _alwaysDisplayPopUpLabels = NO;
     _enableLeftReferenceAxisFrameLine = YES;
     _enableBottomReferenceAxisFrameLine = YES;
